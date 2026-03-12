@@ -64,6 +64,47 @@ a{color:inherit;text-decoration:none;}
 @keyframes scroll{to{transform:translateX(-100%)}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
 
+/* ── SEARCH ── */
+.hdr-search-btn{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.04);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--txt2);font-size:13px;transition:.15s;}
+.hdr-search-btn:active{transform:scale(.9);}
+.hdr-search-bar{display:none;padding:8px 16px;background:#09090f;border-bottom:1px solid var(--border);}
+.hdr-search-bar.on{display:flex;align-items:center;gap:8px;}
+.hdr-search-bar input{flex:1;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px 12px;color:var(--txt);font-size:13px;outline:none;}
+.hdr-search-bar i{color:var(--txt2);cursor:pointer;font-size:16px;padding:4px;}
+
+/* ── HOME CATS ── */
+.home-cats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.home-cat{border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:.15s;border:1px solid;}
+.home-cat:active{transform:scale(.97);}
+.paid-cat{background:linear-gradient(135deg,rgba(0,255,106,.1),rgba(0,255,106,.04));border-color:rgba(0,255,106,.25);}
+.coin-cat{background:linear-gradient(135deg,rgba(255,215,0,.1),rgba(255,215,0,.04));border-color:rgba(255,215,0,.25);}
+.hcat-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.paid-cat .hcat-icon{background:rgba(0,255,106,.15);color:var(--green);}
+.coin-cat .hcat-icon{background:rgba(255,215,0,.15);color:var(--yellow);}
+.hcat-label{font-size:12px;font-weight:700;line-height:1.4;}
+.paid-cat .hcat-label{color:var(--green);}
+.coin-cat .hcat-label{color:var(--yellow);}
+
+/* ── WALLET HISTORY ROW ── */
+.w-hist-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;}
+.w-hist-row .w-hist-sec{margin-top:0;}
+
+/* ── DAILY CLAIM BUTTON ── */
+.btn-daily-claim{width:100%;padding:11px;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;border:none;margin-top:6px;transition:.2s;display:flex;align-items:center;justify-content:center;gap:7px;}
+.btn-daily-claim.avail{background:linear-gradient(135deg,#ffd700,#ff8c00);color:#000;}
+.btn-daily-claim.claimed{background:rgba(255,46,46,.15);border:1px solid rgba(255,46,46,.3);color:var(--red);}
+
+/* ── TEAM AVATARS ── */
+.tm-avatars{display:flex;gap:12px;flex-wrap:wrap;padding:8px 0;}
+.tm-av-item{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.tm-av-circle{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--blue));display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#000;border:2px solid rgba(0,255,106,.4);overflow:hidden;position:relative;}
+.tm-av-circle img{width:100%;height:100%;object-fit:cover;}
+.tm-av-circle.you{border-color:var(--yellow);background:linear-gradient(135deg,var(--yellow),var(--orange));}
+.tm-av-you{font-size:10px;color:var(--yellow);font-weight:700;}
+.tm-av-name{font-size:11px;color:var(--txt);font-weight:600;text-align:center;max-width:52px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.tm-av-remove{font-size:10px;color:var(--red);cursor:pointer;font-weight:600;}
+.tm-av-remove:active{opacity:.7;}
+
 /* ── HOME SECTION TITLE ── */
 .home-section-title{font-size:13px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.8px;padding:8px 0 6px;display:flex;align-items:center;gap:6px;}
 
@@ -365,11 +406,12 @@ textarea.fi{resize:none;min-height:76px;}
 <div class="hdr-row">
   <div class="hdr-logo"><i class="fas fa-fire"></i><span>Mini eSports</span></div>
   <div class="hdr-right">
-    <div class="hdr-bell" onclick="go('notif')"><i class="fas fa-bell"></i><div class="bell-dot" id="bellDot"></div></div>
+    <div class="hdr-search-btn" onclick="toggleSearch()" id="searchBtn"><i class="fas fa-search"></i></div>
     <div class="hdr-chip chip-coin"><i class="fas fa-coins"></i> <span id="hCoins">0</span></div>
     <div class="hdr-chip chip-money">₹<span id="hMoney">0</span></div>
   </div>
 </div>
+<div class="hdr-search-bar" id="searchBar"><input type="text" id="searchInput" placeholder="Search tournaments..." oninput="searchTournaments(this.value)"><i class="fas fa-times" onclick="closeSearch()"></i></div>
 <div class="ticker"><span id="tickerTxt">🔥 Welcome to Mini eSports! Join tournaments and win real cash prizes! 🏆</span></div>
 </div>
 
@@ -381,10 +423,25 @@ textarea.fi{resize:none;min-height:76px;}
 
 <!-- HOME -->
 <div class="scr on" id="s-home">
+<div id="searchResults" style="display:none"></div>
+<div class="home-cats">
+  <div class="home-cat paid-cat" onclick="scrollToSection('paidSec')">
+    <div class="hcat-icon"><i class="fas fa-rupee-sign"></i></div>
+    <div class="hcat-label">Paid<br>Matches</div>
+  </div>
+  <div class="home-cat coin-cat" onclick="scrollToSection('coinSec')">
+    <div class="hcat-icon"><i class="fas fa-coins"></i></div>
+    <div class="hcat-label">Coin<br>Matches</div>
+  </div>
+</div>
+<div id="paidSec">
 <div class="home-section-title"><i class="fas fa-rupee-sign" style="color:var(--green)"></i> Paid Matches</div>
 <div class="mlist" id="homeListPaid"></div>
-<div class="home-section-title" style="margin-top:18px"><i class="fas fa-coins" style="color:var(--yellow)"></i> Coin Matches</div>
+</div>
+<div id="coinSec" style="margin-top:18px">
+<div class="home-section-title"><i class="fas fa-coins" style="color:var(--yellow)"></i> Coin Matches</div>
 <div class="mlist" id="homeListCoin"></div>
+</div>
 </div>
 
 <!-- NOTIFICATIONS -->
@@ -438,19 +495,19 @@ textarea.fi{resize:none;min-height:76px;}
 <div class="wcard wc">
   <div class="wlabel">Coins</div>
   <div class="wamt" style="color:var(--yellow)">🪙 <span id="wCoins">0</span></div>
-  <button class="btn btn-s" onclick="dailyClaim()" style="margin-top:6px"><i class="fas fa-calendar-check"></i> Daily Claim (+10 Coins)</button>
+  <button class="btn-daily-claim" id="dailyClaimBtn" onclick="dailyClaim()" style="margin-top:6px"><i class="fas fa-calendar-check"></i> Daily Claim (+10 Coins)</button>
 </div>
 
-<!-- Real Money History -->
-<div class="w-hist-sec">
-  <div class="w-hist-title"><i class="fas fa-history" style="color:var(--green)"></i> Real Money History</div>
-  <div id="wHistMoney"><div class="w-hist-empty">No transactions yet</div></div>
-</div>
-
-<!-- Coin History -->
-<div class="w-hist-sec">
-  <div class="w-hist-title"><i class="fas fa-coins" style="color:var(--yellow)"></i> Coin History</div>
-  <div id="wHistCoins"><div class="w-hist-empty">No coin transactions yet</div></div>
+<!-- History side by side -->
+<div class="w-hist-row">
+  <div class="w-hist-sec">
+    <div class="w-hist-title"><i class="fas fa-history" style="color:var(--green)"></i> Money History</div>
+    <div id="wHistMoney"><div class="w-hist-empty">No transactions yet</div></div>
+  </div>
+  <div class="w-hist-sec">
+    <div class="w-hist-title"><i class="fas fa-coins" style="color:var(--yellow)"></i> Coin History</div>
+    <div id="wHistCoins"><div class="w-hist-empty">No coin transactions yet</div></div>
+  </div>
 </div>
 </div>
 
@@ -485,8 +542,16 @@ textarea.fi{resize:none;min-height:76px;}
 <div id="pUpdateWrap"><button class="btn btn-o" onclick="openProfileUpdate()" id="pUpdateBtn"><i class="fas fa-paper-plane"></i> Request Profile Update</button></div>
 <div class="p-sec" style="margin-top:10px">
   <div class="p-sec-t">My Teams</div>
-  <div class="tm-card"><div class="tm-title"><i class="fas fa-user-friends" style="color:var(--yellow)"></i> Duo Team</div><div id="duoList"></div><button class="btn-tm" id="btnDuo" onclick="openTeam('duo')"><i class="fas fa-plus"></i> Add Teammate</button></div>
-  <div class="tm-card"><div class="tm-title"><i class="fas fa-users" style="color:var(--red)"></i> Squad Team</div><div id="squadList"></div><button class="btn-tm" id="btnSquad" onclick="openTeam('squad')"><i class="fas fa-plus"></i> Add Teammate</button></div>
+  <div class="tm-card">
+    <div class="tm-title"><i class="fas fa-user-friends" style="color:var(--yellow)"></i> Duo Partner</div>
+    <div class="tm-avatars" id="duoList"></div>
+    <button class="btn-tm" id="btnDuo" onclick="openTeam('duo')"><i class="fas fa-plus"></i> Add Teammate</button>
+  </div>
+  <div class="tm-card" style="margin-top:10px">
+    <div class="tm-title"><i class="fas fa-users" style="color:var(--red)"></i> Squad Team</div>
+    <div class="tm-avatars" id="squadList"></div>
+    <button class="btn-tm" id="btnSquad" onclick="openTeam('squad')"><i class="fas fa-plus"></i> Add Teammate</button>
+  </div>
 </div>
 <div class="p-sec">
   <div class="p-sec-t">Support & Help</div>
@@ -686,9 +751,10 @@ auth.onAuthStateChanged(function(u){
   document.getElementById('splash').classList.add('hide');
   if(u){
     // Admin session isolation: if admin panel marked this session, sign out
-    if(sessionStorage.getItem('adminSession')==='1'){
-      sessionStorage.removeItem('adminSession');
-      auth.signOut();
+    if(localStorage.getItem('miniAdminSession')==='1'){
+      // Admin is logged in on this browser - don't auto-login user panel
+      U=null;UD=null;
+      document.getElementById('loginScreen').classList.remove('hide');
       return;
     }
     U=u;
@@ -1364,8 +1430,24 @@ function renderWallet(){
     wdBtn.disabled=false;wdBtn.style.opacity='1';
   }
 
+  // Daily claim button color
+  updateClaimBtn();
   // Load wallet history
   renderWalletHistory();
+}
+
+function updateClaimBtn(){
+  var btn=document.getElementById('dailyClaimBtn');
+  if(!btn||!UD)return;
+  var last=UD.lastDailyClaim||0,diff=Date.now()-last;
+  if(diff>=86400000){
+    btn.className='btn-daily-claim avail';
+    btn.innerHTML='<i class="fas fa-calendar-check"></i> Daily Claim (+10 Coins)';
+  }else{
+    var rem=86400000-diff,h=Math.floor(rem/3600000),m=Math.floor((rem%3600000)/60000);
+    btn.className='btn-daily-claim claimed';
+    btn.innerHTML='<i class="fas fa-clock"></i> Claimed · Next in '+h+'h '+m+'m';
+  }
 }
 
 function renderWalletHistory(){
@@ -1538,9 +1620,20 @@ function renderProfile(){
   
   // Teams
   var duoT=UD.duoTeam||{},duoA=Object.values(duoT);
-  document.getElementById('duoList').innerHTML=duoA.length?duoA.map(function(m){return'<div class="tm-mem"><div class="tm-av">'+(m.name||m.ffuid||'?')[0].toUpperCase()+'</div><span>'+(m.name||m.ffuid||'-')+'</span></div>';}).join(''):'<div style="font-size:12px;color:var(--txt2);padding:3px 0">No teammates yet</div>';
+  // Duo team avatars
+  var duoHTML='<div class="tm-av-item"><div class="tm-av-circle you">'+(UD.profileImage?'<img src="'+UD.profileImage+'">':(UD.ign||UD.displayName||'?')[0].toUpperCase())+'</div><div class="tm-av-you">👑 You</div><div class="tm-av-name">'+(UD.ign||'You')+'</div></div>';
+  duoA.forEach(function(m,i){
+    duoHTML+='<div class="tm-av-item"><div class="tm-av-circle">'+(m.name||m.ffuid||'?')[0].toUpperCase()+'</div><div class="tm-av-name">'+(m.name||m.ffuid||'-')+'</div><div class="tm-av-remove" onclick="removeTeamMember('duo',''+i+'')">✕ Remove</div></div>';
+  });
+  document.getElementById('duoList').innerHTML=duoHTML;
+
   var sqT=UD.squadTeam||{},sqA=Object.values(sqT);
-  document.getElementById('squadList').innerHTML=sqA.length?sqA.map(function(m){return'<div class="tm-mem"><div class="tm-av">'+(m.name||m.ffuid||'?')[0].toUpperCase()+'</div><span>'+(m.name||m.ffuid||'-')+'</span></div>';}).join(''):'<div style="font-size:12px;color:var(--txt2);padding:3px 0">No teammates yet</div>';
+  // Squad team avatars
+  var sqHTML='<div class="tm-av-item"><div class="tm-av-circle you">'+(UD.profileImage?'<img src="'+UD.profileImage+'">':(UD.ign||UD.displayName||'?')[0].toUpperCase())+'</div><div class="tm-av-you">👑 You</div><div class="tm-av-name">'+(UD.ign||'You')+'</div></div>';
+  sqA.forEach(function(m,i){
+    sqHTML+='<div class="tm-av-item"><div class="tm-av-circle">'+(m.name||m.ffuid||'?')[0].toUpperCase()+'</div><div class="tm-av-name">'+(m.name||m.ffuid||'-')+'</div><div class="tm-av-remove" onclick="removeTeamMember('squad',''+i+'')">✕ Remove</div></div>';
+  });
+  document.getElementById('squadList').innerHTML=sqHTML;
   
   // Disable team buttons if view only
   var btnDuo=document.getElementById('btnDuo');
@@ -1594,6 +1687,47 @@ function doSupport(){
 }
 
 function openRules(){openOv('ovRules');}
+
+// ═══════════════════════════════════════════════════════
+// REMOVE TEAM MEMBER
+// ═══════════════════════════════════════════════════════
+function removeTeamMember(mode,idx){
+  if(!U||!UD)return;
+  var teamKey=mode+'Team';
+  var team=UD[teamKey]||{};
+  var keys=Object.keys(team);
+  var keyToRemove=keys[idx];
+  if(!keyToRemove)return;
+  db.ref('users/'+U.uid+'/'+teamKey+'/'+keyToRemove).remove().then(function(){
+    toast('Teammate removed','ok');
+  }).catch(function(e){toast(e.message,'err');});
+}
+
+// ═══════════════════════════════════════════════════════
+// SEARCH
+// ═══════════════════════════════════════════════════════
+function toggleSearch(){
+  var bar=document.getElementById('searchBar');
+  bar.classList.toggle('on');
+  if(bar.classList.contains('on'))document.getElementById('searchInput').focus();
+  else{document.getElementById('searchInput').value='';searchTournaments('');}
+}
+function closeSearch(){
+  document.getElementById('searchBar').classList.remove('on');
+  document.getElementById('searchInput').value='';
+  searchTournaments('');
+}
+function searchTournaments(q){
+  var sr=document.getElementById('searchResults');
+  if(!q.trim()){sr.style.display='none';document.getElementById('paidSec').style.display='';document.getElementById('coinSec').style.display='';return;}
+  var all=Object.entries(TOURS).map(function(e){return Object.assign({},e[1],{id:e[0]});})
+    .filter(function(m){return(m.name||'').toLowerCase().indexOf(q.toLowerCase())!==-1&&m.isSpecial!==true;});
+  sr.style.display='block';
+  document.getElementById('paidSec').style.display='none';
+  document.getElementById('coinSec').style.display='none';
+  sr.innerHTML=all.length?'<div class="home-section-title"><i class="fas fa-search" style="color:var(--blue)"></i> Search Results ('+all.length+')</div><div class="mlist">'+all.map(function(m){return mCard(m);}).join('')+'</div>':'<div class="empty"><i class="fas fa-search"></i><p>No matches found</p></div>';
+}
+function scrollToSection(id){document.getElementById(id).scrollIntoView({behavior:'smooth'});}
 
 // ═══════════════════════════════════════════════════════
 // DAILY CLAIM
