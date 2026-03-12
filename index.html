@@ -751,10 +751,9 @@ auth.onAuthStateChanged(function(u){
   document.getElementById('splash').classList.add('hide');
   if(u){
     // Admin session isolation: if admin panel marked this session, sign out
-    if(localStorage.getItem('miniAdminSession')==='1'){
-      // Admin is logged in on this browser - don't auto-login user panel
-      U=null;UD=null;
-      document.getElementById('loginScreen').classList.remove('hide');
+    // If logged in via email/password (admin login), sign out from user panel
+    if(u.providerData&&u.providerData[0]&&u.providerData[0].providerId==='password'){
+      auth.signOut();
       return;
     }
     U=u;
