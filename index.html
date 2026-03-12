@@ -747,19 +747,30 @@ function canAct(){return isApproved()&&!hasPendingRequest();}
 // ═══════════════════════════════════════════════════════
 // AUTH
 // ═══════════════════════════════════════════════════════
+var authReady=false;
 auth.onAuthStateChanged(function(u){
-  document.getElementById('splash').classList.add('hide');
+  // Always hide splash
+  var sp=document.getElementById('splash');
+  sp.style.opacity='0';
+  sp.style.pointerEvents='none';
+  
   if(u){
-    // Admin session isolation: if admin panel marked this session, sign out
-    // If logged in via email/password (admin login), sign out from user panel
-    if(u.providerData&&u.providerData[0]&&u.providerData[0].providerId==='password'){
-      auth.signOut();
+    // Only allow Google login on user panel
+    var provider=u.providerData&&u.providerData[0]&&u.providerData[0].providerId;
+    if(provider==='password'){
+      // Admin email/password user — don't let them into user panel
+      if(!authReady){
+        authReady=true;
+        auth.signOut();
+      }
       return;
     }
+    authReady=true;
     U=u;
     document.getElementById('loginScreen').classList.add('hide');
     boot();
   }else{
+    authReady=true;
     U=null;UD=null;
     document.getElementById('loginScreen').classList.remove('hide');
   }
