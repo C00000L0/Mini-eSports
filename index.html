@@ -306,10 +306,7 @@ textarea.form-input{resize:none;min-height:80px}
         <div class="h-icon" onclick="toggleSearch()" style="color:var(--yellow);font-size:20px">⌕</div>
         <div class="chip coin-chip" onclick="go('wallet')">◎ <span id="hCoins">0</span></div>
         <div class="chip money-chip" onclick="go('wallet')">₹<span id="hMoney">0</span></div>
-        <!-- User avatar (shown after Google login) -->
-        <div class="user-avatar" id="headerAvatar" style="display:none" onclick="go('profile')">
-          <img id="headerAvatarImg" src="" alt="">
-        </div>
+
       </div>
     </div>
     <div class="ticker-wrap"><div class="ticker-content" id="tickerText">Welcome to Mini eSports — Join tournaments, win prizes! 🔥</div></div>
@@ -323,16 +320,18 @@ textarea.form-input{resize:none;min-height:80px}
   <div class="content-area" id="contentArea">
     <!-- HOME -->
     <div class="screen active" id="screen-home">
-      <div class="home-tabs">
-        <div class="home-tab active" id="tabPaid" onclick="switchHomeTab('paid')">₹ Paid Matches</div>
-        <div class="home-tab" id="tabCoin" onclick="switchHomeTab('coin')">◎ Coin Matches</div>
+      <!-- Filter Dropdown -->
+      <div style="position:relative;margin-bottom:12px;" id="homeFilterWrap">
+        <div onclick="toggleHomeDropdown()" style="display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--byellow);border-radius:12px;padding:11px 14px;cursor:pointer;touch-action:manipulation;">
+          <span id="homeFilterLabel" style="font-size:13px;font-weight:700;color:var(--yellow);">₹ Paid Matches</span>
+          <span id="homeDropArrow" style="color:var(--yellow);font-size:14px;transition:transform .15s;">▼</span>
+        </div>
+        <div id="homeDropMenu" style="display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;background:#111;border:1px solid var(--byellow);border-radius:12px;z-index:50;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.6);">
+          <div onclick="selectHomeFilter('paid')" id="filterOptPaid" style="padding:13px 16px;cursor:pointer;font-size:13px;font-weight:700;color:var(--yellow);background:rgba(255,215,0,0.08);border-bottom:1px solid rgba(255,215,0,0.1);touch-action:manipulation;">₹ Paid Matches</div>
+          <div onclick="selectHomeFilter('coin')" id="filterOptCoin" style="padding:13px 16px;cursor:pointer;font-size:13px;font-weight:700;color:var(--dim);touch-action:manipulation;">◎ Coin Matches</div>
+        </div>
       </div>
-      <div id="paidSection">
-        <div id="paidList"><div class="empty-state"><div class="emoji">★</div><div class="msg">Loading paid matches...</div></div></div>
-      </div>
-      <div id="coinSection" style="display:none">
-        <div id="coinList"><div class="empty-state"><div class="emoji">◎</div><div class="msg">Loading coin matches...</div></div></div>
-      </div>
+      <div id="homeMatchList"><div class="empty-state"><div class="emoji">★</div><div class="msg">Loading matches...</div></div></div>
     </div>
 
     <!-- SPECIAL -->
@@ -574,11 +573,7 @@ window.addEventListener('load',()=>{
       document.getElementById('loginScreen').classList.add('hide');
       document.getElementById('authLoading').classList.remove('show');
 
-      // Update header avatar
-      if(U.photoURL){
-        document.getElementById('headerAvatarImg').src = U.photoURL;
-        document.getElementById('headerAvatar').style.display = 'block';
-      }
+      // Avatar shown only in profile page
 
       await boot();
     } else {
@@ -720,7 +715,15 @@ function listenTicker(){
 }
 
 // ====== NAV ======
-function go(screen){
+// ====== BROWSER BACK BUTTON SUPPORT ======
+window.addEventListener('popstate', function(e){
+  if(e.state&&e.state.screen) goInternal(e.state.screen);
+});
+function go(screen, push=true){
+  if(push) history.pushState({screen},'',location.pathname+'#'+screen);
+  goInternal(screen);
+}
+function goInternal(screen){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   const el=document.getElementById('screen-'+screen);
   if(el)el.classList.add('active');
@@ -754,11 +757,7 @@ function updateHeader(){
   const rm=UD.realMoney||{};
   document.getElementById('hMoney').textContent=(rm.deposited||0)+(rm.winnings||0)+(rm.bonus||0);
 
-  // Update header avatar from Firebase data (handles manual uploads too)
-  if(UD.photoURL){
-    document.getElementById('headerAvatarImg').src=UD.photoURL;
-    document.getElementById('headerAvatar').style.display='block';
-  }
+  // Avatar shown only in profile page now
 }
 function updateApprovalBanner(){
   const b=document.getElementById('approvalBanner');
@@ -770,22 +769,49 @@ function updateApprovalBanner(){
 }
 
 // ====== HOME ======
-function switchHomeTab(tab){
-  currentHomeTab=tab;
-  document.getElementById('tabPaid').classList.toggle('active',tab==='paid');
-  document.getElementById('tabCoin').classList.toggle('active',tab==='coin');
-  document.getElementById('paidSection').style.display=tab==='paid'?'':'none';
-  document.getElementById('coinSection').style.display=tab==='coin'?'':'none';
+function toggleHomeDropdown(){
+  const menu=document.getElementById('homeDropMenu');
+  const arrow=document.getElementById('homeDropArrow');
+  const isOpen=menu.style.display==='block';
+  menu.style.display=isOpen?'none':'block';
+  arrow.style.transform=isOpen?'':'rotate(180deg)';
 }
+function selectHomeFilter(filter){
+  currentHomeTab=filter;
+  document.getElementById('homeDropMenu').style.display='none';
+  document.getElementById('homeDropArrow').style.transform='';
+  document.getElementById('homeFilterLabel').textContent=filter==='paid'?'₹ Paid Matches':'◎ Coin Matches';
+  document.getElementById('filterOptPaid').style.background=filter==='paid'?'rgba(255,215,0,0.08)':'';
+  document.getElementById('filterOptPaid').style.color=filter==='paid'?'var(--yellow)':'var(--dim)';
+  document.getElementById('filterOptCoin').style.background=filter==='coin'?'rgba(255,215,0,0.08)':'';
+  document.getElementById('filterOptCoin').style.color=filter==='coin'?'var(--yellow)':'var(--dim)';
+  renderHome();
+}
+// Close dropdown on outside click
+document.addEventListener('click',e=>{
+  const wrap=document.getElementById('homeFilterWrap');
+  if(wrap&&!wrap.contains(e.target)){
+    const menu=document.getElementById('homeDropMenu');
+    if(menu)menu.style.display='none';
+    const arrow=document.getElementById('homeDropArrow');
+    if(arrow)arrow.style.transform='';
+  }
+});
+function switchHomeTab(tab){ selectHomeFilter(tab); }
 function renderHome(){
-  const paid=[],coin=[];
+  const all=[];
   Object.entries(allTournaments).forEach(([id,t])=>{
     if(t.isSpecial)return;
-    if(t.entryType==='paid')paid.push({id,...t});
-    else coin.push({id,...t});
+    if(currentHomeTab==='paid'&&t.entryType!=='paid')return;
+    if(currentHomeTab==='coin'&&t.entryType==='paid')return;
+    all.push({id,...t});
   });
-  document.getElementById('paidList').innerHTML=paid.length?paid.map(t=>tournamentCard(t)).join(''):emptyState('No paid matches yet','★');
-  document.getElementById('coinList').innerHTML=coin.length?coin.map(t=>tournamentCard(t)).join(''):emptyState('No coin matches yet','◎');
+  all.sort((a,b)=>{
+    const order={live:0,upcoming:1,completed:2};
+    return (order[a.status]||1)-(order[b.status]||1);
+  });
+  const listEl=document.getElementById('homeMatchList');
+  if(listEl)listEl.innerHTML=all.length?all.map(t=>tournamentCard(t)).join(''):emptyState(currentHomeTab==='paid'?'No paid matches yet':'No coin matches yet',currentHomeTab==='paid'?'★':'◎');
 }
 
 function tournamentCard(t,special=false){
@@ -822,7 +848,8 @@ function tournamentCard(t,special=false){
         <span style="background:rgba(255,255,255,0.06);border-radius:20px;padding:4px 10px;font-size:10px;font-weight:600;color:#ccc;">${modeIcon} ${esc(t.gameMode||'Solo')}</span>
         <span style="background:rgba(255,255,255,0.06);border-radius:20px;padding:4px 10px;font-size:10px;font-weight:600;color:#ccc;">🗺 ${esc(t.map||'-')}</span>
         <span style="background:${isPaid?'rgba(255,215,0,0.1)':'rgba(100,200,255,0.1)'};border-radius:20px;padding:4px 10px;font-size:10px;font-weight:700;color:${accentColor};">Entry: ${entryLabel}</span>
-        ${timeStr?`<span style="background:rgba(255,0,0,0.1);border-radius:20px;padding:4px 10px;font-size:10px;font-weight:600;color:var(--red);">⏱ ${timeStr}</span>`:''}
+        ${t.matchTime?`<span style="background:rgba(255,255,255,0.06);border-radius:20px;padding:4px 10px;font-size:10px;font-weight:600;color:#aaa;">📅 ${new Date(t.matchTime).toLocaleDateString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</span>`:''}
+        ${timeStr&&t.status==='upcoming'?`<span style="background:rgba(255,0,0,0.1);border-radius:20px;padding:4px 10px;font-size:10px;font-weight:700;color:var(--red);" id="cd_${t.id}">⏱ ${timeStr}</span>`:''}
       </div>
       <!-- Slots bar -->
       <div style="margin-bottom:10px;">
@@ -1087,7 +1114,7 @@ function renderAddMoneyModal(){
     body=`<h3 style="margin-bottom:12px;">Enter Transaction Details</h3>
       <div class="form-group">
         <label style="color:var(--yellow);">UTR Number (Mandatory)</label>
-        <input class="form-input" type="text" id="utrInput" placeholder="Enter UTR from your UPI app" style="margin-top:5px;">
+        <input class="form-input" type="text" id="utrInput" placeholder="Enter 12-digit UTR" maxlength="12" inputmode="numeric" pattern="[0-9]{12}" style="margin-top:5px;">
         <p style="font-size:10px;color:var(--dim);margin-top:3px;">Find UTR in your UPI app payment history</p>
       </div>
       <div class="form-group">
@@ -1125,6 +1152,7 @@ function addMoneyNext(){
 async function submitAddMoney(){
   const utr=document.getElementById('utrInput')?.value.trim();
   if(!utr){toast('UTR number is required','error');return;}
+  if(!/^\d{12}$/.test(utr)){toast('UTR must be exactly 12 digits','error');return;}
   const fi=document.getElementById('ssInput');
   if(!fi||!fi.files.length){toast('Please upload payment screenshot','error');return;}
   const file=fi.files[0];
@@ -1305,11 +1333,13 @@ function switchLbTab(tab,el){
 function updateProfile(){
   if(!UD)return;
   const av=document.getElementById('pAvatar'),fb=document.getElementById('pAvatarFallback');
-  if(UD.photoURL){
-    av.src=UD.photoURL;av.style.display='block';fb.style.display='none';
+  const photoUrl=UD.photoURL||U?.photoURL||'';
+  if(photoUrl){
+    av.src=photoUrl;av.style.display='block';fb.style.display='none';
+    // Also update header SVG style - show initials badge
   }else{
     av.style.display='none';fb.style.display='block';
-    fb.textContent=(UD.displayName||'?').charAt(0).toUpperCase();
+    fb.textContent=(UD.displayName||U?.displayName||'?').charAt(0).toUpperCase();
   }
   document.getElementById('pName').textContent=UD.displayName||U.displayName||'-';
   document.getElementById('pEmail').textContent=UD.email||U.email||'-';
