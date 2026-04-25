@@ -271,7 +271,7 @@ textarea.form-input{resize:none;min-height:80px}
 </div>
 
 <!-- LOGIN -->
-<div id="loginScreen" class="hide">
+<div id="loginScreen">
   <div class="login-card">
     <span class="fire">🔥</span>
     <h1>Mini eSports</h1>
@@ -288,14 +288,7 @@ textarea.form-input{resize:none;min-height:80px}
       <span class="g-btn-text">Continue with Google</span>
     </button>
 
-    <div class="login-divider">or</div>
-
-    <!-- Guest / Anonymous -->
-    <button class="guest-btn" onclick="guestSignIn()">
-      ⚡ Enter as Guest
-    </button>
-
-    <p class="login-footer">By continuing you agree to our Terms of Service.<br>Google login saves your progress across devices.</p>
+    <p class="login-footer">By continuing you agree to our Terms of Service.<br>Your Google account keeps progress saved across all devices.</p>
   </div>
 </div>
 
@@ -567,9 +560,9 @@ window.addEventListener('load',()=>{
   },800);
 
   auth.onAuthStateChanged(async(user)=>{
-    if(user){
-      // Signed in
-      isGoogleUser = (user.providerData && user.providerData.length > 0 && user.providerData[0].providerId === 'google.com');
+    // Only allow Google-authenticated users (not anonymous)
+    if(user && !user.isAnonymous && user.providerData && user.providerData.length > 0){
+      isGoogleUser = user.providerData[0].providerId === 'google.com';
       U = {
         uid: user.uid,
         displayName: user.displayName || 'Player_'+user.uid.slice(0,6),
@@ -579,15 +572,15 @@ window.addEventListener('load',()=>{
       document.getElementById('loginScreen').classList.add('hide');
       document.getElementById('authLoading').classList.remove('show');
 
-      // Update header avatar if Google user
-      if(isGoogleUser && U.photoURL){
+      // Update header avatar
+      if(U.photoURL){
         document.getElementById('headerAvatarImg').src = U.photoURL;
         document.getElementById('headerAvatar').style.display = 'block';
       }
 
       await boot();
     } else {
-      // Not signed in
+      // Not signed in OR anonymous — show login screen
       cleanupListeners();
       U = null; UD = null;
       document.getElementById('mainApp').classList.remove('show');
@@ -618,22 +611,6 @@ async function googleSignIn(){
 }
 
 // ====== GUEST SIGN IN ======
-async function guestSignIn(){
-  document.getElementById('authLoading').classList.add('show');
-  try{
-    // Check if already have a guest uid stored
-    const savedUid = localStorage.getItem('me_uid');
-    if(savedUid){
-      // Sign in anonymously and link to saved UID via custom display
-      await auth.signInAnonymously();
-    } else {
-      await auth.signInAnonymously();
-    }
-  }catch(e){
-    document.getElementById('authLoading').classList.remove('show');
-    toast('Failed to enter: '+e.message,'error');
-  }
-}
 
 // ====== LOGOUT ======
 function confirmLogout(){
@@ -643,7 +620,7 @@ async function doLogout(){
   closeModal();
   cleanupListeners();
   try{ await auth.signOut(); }catch(e){}
-  localStorage.removeItem('me_uid');
+  
   U=null; UD=null; isGoogleUser=false;
   document.getElementById('mainApp').classList.remove('show');
   document.getElementById('loginScreen').classList.remove('hide');
