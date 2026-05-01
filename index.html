@@ -309,7 +309,7 @@ textarea.form-input{resize:none;min-height:80px}
 
       </div>
     </div>
-    <div class="ticker-wrap"><div class="ticker-content" id="tickerText">🏆 Welcome to Mini eSports — Join tournaments, win real prizes! ⚡ New matches added daily — don't miss out! 🎯</div></div>
+    <div class="ticker-wrap"><div class="ticker-content" id="tickerText">🏆 Welcome to Mini eSports — Join tournaments, win real prizes! ⚡ New matches added daily — don\'t miss out! 🎯</div></div>
     <div class="search-wrap" id="searchWrap">
       <input type="text" placeholder="Search tournaments..." id="searchInput" oninput="filterTournaments()">
     </div>
@@ -720,7 +720,7 @@ function listenTicker(){
   const ref=db.ref('appSettings/ticker');
   const cb=ref.on('value',snap=>{
     const d=snap.val();
-    document.getElementById('tickerText').textContent=(d&&d.text)?d.text:(typeof d==='string'?d:'🏆 Welcome to Mini eSports — Join tournaments, win real prizes! ⚡ New matches added daily — don't miss out! 🎯');
+    document.getElementById('tickerText').textContent=(d&&d.text)?d.text:(typeof d==='string'?d:'Welcome to Mini eSports! Join tournaments, win prizes!');
   });
   listeners.push(()=>ref.off('value',cb));
 }
@@ -838,47 +838,51 @@ function tournamentCard(t,special=false){
   const modeIcon=t.gameMode==='duo'?'👥':t.gameMode==='squad'?'⚔️':'🎯';
   const borderColor=special?'linear-gradient(135deg,var(--yellow),var(--red))':isPaid?'rgba(255,215,0,0.2)':'rgba(100,200,255,0.2)';
   const accentColor=isPaid?'var(--yellow)':'#64c8ff';
-  return `<div class="t-card" data-name="${esc(t.name||'')}" style="border:1px solid ${isPaid?'rgba(255,215,0,0.18)':'rgba(100,200,255,0.18)'};background:linear-gradient(135deg,#0d0d0d 0%,#111 100%);padding:0;overflow:hidden;margin-bottom:10px;">
-    <!-- Top accent bar -->
-    <div style="height:3px;background:${special?'linear-gradient(90deg,var(--yellow),var(--red))':isPaid?'linear-gradient(90deg,var(--yellow3),var(--yellow))':'linear-gradient(90deg,#3399ff,#64c8ff)'};"></div>
-    <div style="padding:12px;">
-      <!-- Header row -->
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
-        <div style="flex:1;min-width:0;">
-          ${statusBadge}
-          <div class="t-name" style="font-size:14px;margin-top:5px;">${esc(t.name||'Tournament')}</div>
-        </div>
-        <!-- Prize badge -->
-        <div style="text-align:right;flex-shrink:0;margin-left:8px;">
-          <div style="font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;">Prize Pool</div>
-          <div style="font-size:15px;font-weight:900;color:${accentColor};">${prizeLabel}</div>
-        </div>
-      </div>
-      <!-- Info pills -->
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
-        <span style="background:rgba(255,255,255,0.06);border-radius:20px;padding:4px 10px;font-size:10px;font-weight:600;color:#ccc;">${modeIcon} ${esc(t.gameMode||'Solo')}</span>
-        <span style="background:rgba(255,255,255,0.06);border-radius:20px;padding:4px 10px;font-size:10px;font-weight:600;color:#ccc;">🗺 ${esc(t.map||'-')}</span>
-        <span style="background:${isPaid?'rgba(255,215,0,0.1)':'rgba(100,200,255,0.1)'};border-radius:20px;padding:4px 10px;font-size:10px;font-weight:700;color:${accentColor};">Entry: ${entryLabel}</span>
-        ${t.matchTime?`<span style="background:rgba(255,255,255,0.06);border-radius:20px;padding:4px 10px;font-size:10px;font-weight:600;color:#aaa;">📅 ${new Date(t.matchTime).toLocaleDateString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</span>`:''}
-        ${timeStr&&t.status==='upcoming'?`<span style="background:rgba(255,0,0,0.1);border-radius:20px;padding:4px 10px;font-size:10px;font-weight:700;color:var(--red);" id="cd_${t.id}">⏱ ${timeStr}</span>`:''}
-      </div>
-      <!-- Slots bar -->
-      <div style="margin-bottom:10px;">
-        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--dim);margin-bottom:4px;">
-          <span>Slots Filled</span>
-          <span style="color:${isFull?'var(--red)':'#fff'};font-weight:700;">${t.filledSlots||0}/${t.maxSlots||0}</span>
-        </div>
-        <div style="height:5px;background:#222;border-radius:3px;overflow:hidden;">
-          <div style="height:100%;width:${pct}%;background:${pct>=90?'var(--red)':isPaid?'linear-gradient(90deg,var(--yellow3),var(--yellow))':'linear-gradient(90deg,#3399ff,#64c8ff)'};border-radius:3px;transition:width .3s;"></div>
-        </div>
-      </div>
-      <!-- Action buttons -->
-      <div style="display:flex;gap:8px;">
-        <button class="btn btn-outline" style="flex:1;padding:10px;" onclick="viewTournament('${t.id}')">📋 Details</button>
-        <button class="btn ${canJoin?'btn-yellow':''}" style="flex:1;padding:10px;${!canJoin?'background:#222;color:#555;border:1px solid #333;cursor:default;':''}" onclick="${canJoin?`joinTournament('${t.id}')`:''}">${isFull?'🔴 FULL':t.status==='completed'?'✓ ENDED':'⚡ JOIN'}</button>
-      </div>
-    </div>
-  </div>`;
+  const timeHtml = t.matchTime ? '<span style="background:rgba(255,255,255,0.06);border-radius:20px;padding:4px 10px;font-size:10px;color:#aaa;">📅 '+new Date(t.matchTime).toLocaleDateString('en-IN',{day:'2-digit',month:'short'})+'</span>' : '';
+  const cdHtml = (timeStr&&t.status==='upcoming') ? '<span style="background:rgba(255,0,0,0.1);border-radius:20px;padding:4px 10px;font-size:10px;font-weight:700;color:var(--red);">⏱ '+timeStr+'</span>' : '';
+  const joinOnclick = canJoin ? 'joinTournament(\'' + t.id + '\')' : '';
+  const joinLabel = isFull ? '🔴 FULL' : (t.status==='completed' ? '✓ ENDED' : '⚡ JOIN');
+  const joinStyle = canJoin ? '' : 'background:#222;color:#555;border:1px solid #333;cursor:not-allowed;';
+  const joinClass = canJoin ? 'btn btn-yellow' : 'btn';
+  const topBar = special ? 'linear-gradient(90deg,var(--yellow),var(--red))' : (isPaid ? 'linear-gradient(90deg,var(--yellow3),var(--yellow))' : 'linear-gradient(90deg,#3399ff,#64c8ff)');
+  const cardBorder = isPaid ? 'rgba(255,215,0,0.18)' : 'rgba(100,200,255,0.18)';
+  const slotBarBg = pct>=90 ? 'var(--red)' : (isPaid ? 'linear-gradient(90deg,var(--yellow3),var(--yellow))' : 'linear-gradient(90deg,#3399ff,#64c8ff)');
+  const pillBg = isPaid ? 'rgba(255,215,0,0.1)' : 'rgba(100,200,255,0.1)';
+
+  return '<div class="t-card" data-name="'+esc(t.name||'')+'" style="border:1px solid '+cardBorder+';background:linear-gradient(135deg,#0d0d0d 0%,#111 100%);padding:0;overflow:hidden;margin-bottom:10px;">'+
+    '<div style="height:3px;background:'+topBar+';"></div>'+
+    '<div style="padding:12px;">'+
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">'+
+        '<div style="flex:1;min-width:0;">'+
+          statusBadge+
+          '<div class="t-name" style="font-size:14px;margin-top:5px;">'+esc(t.name||'Tournament')+'</div>'+
+        '</div>'+
+        '<div style="text-align:right;flex-shrink:0;margin-left:8px;">'+
+          '<div style="font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;">Prize Pool</div>'+
+          '<div style="font-size:15px;font-weight:900;color:'+accentColor+';">'+prizeLabel+'</div>'+
+        '</div>'+
+      '</div>'+
+      '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">'+
+        '<span style="background:rgba(255,255,255,0.06);border-radius:20px;padding:4px 10px;font-size:10px;font-weight:600;color:#ccc;">'+modeIcon+' '+esc(t.gameMode||'Solo')+'</span>'+
+        '<span style="background:rgba(255,255,255,0.06);border-radius:20px;padding:4px 10px;font-size:10px;font-weight:600;color:#ccc;">🗺 '+esc(t.map||'-')+'</span>'+
+        '<span style="background:'+pillBg+';border-radius:20px;padding:4px 10px;font-size:10px;font-weight:700;color:'+accentColor+';">Entry: '+entryLabel+'</span>'+
+        timeHtml+cdHtml+
+      '</div>'+
+      '<div style="margin-bottom:10px;">'+
+        '<div style="display:flex;justify-content:space-between;font-size:10px;color:var(--dim);margin-bottom:4px;">'+
+          '<span>Slots Filled</span>'+
+          '<span style="color:'+(isFull?'var(--red)':'#fff')+';font-weight:700;">'+(t.filledSlots||0)+'/'+(t.maxSlots||0)+'</span>'+
+        '</div>'+
+        '<div style="height:5px;background:#222;border-radius:3px;overflow:hidden;">'+
+          '<div style="height:100%;width:'+pct+'%;background:'+slotBarBg+';border-radius:3px;"></div>'+
+        '</div>'+
+      '</div>'+
+      '<div style="display:flex;gap:8px;">'+
+        '<button class="btn btn-outline" style="flex:1;padding:10px;" onclick="viewTournament(\''+t.id+'\')">📋 Details</button>'+
+        '<button class="'+joinClass+'" style="flex:1;padding:10px;'+joinStyle+'" onclick="'+joinOnclick+'">'+joinLabel+'</button>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
 }
 
 // ====== SPECIAL ======
@@ -1097,7 +1101,7 @@ function renderAddMoneyModal(){
       <p style="font-size:12px;color:var(--yellow);margin-bottom:12px;">Amount (₹) — Min ₹${minAmt} · Max ₹${maxAmt}</p>
       <input class="form-input" type="number" id="addAmountInput" min="${minAmt}" max="${maxAmt}" placeholder="Enter amount" value="${addMoneyAmount||''}" style="margin-bottom:12px;">
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:14px;">
-        ${[50,100,200,500].map(v=>`<button onclick="document.getElementById('addAmountInput').value=${v}" style="padding:9px 0;border-radius:10px;border:1px solid var(--byellow);background:transparent;color:var(--yellow);font-weight:700;font-size:12px;cursor:pointer;touch-action:manipulation;">₹${v}</button>`).join('')}
+        [50,100,200,500].map(function(v){return '<button onclick="document.getElementById(\'addAmountInput\').value='+v+'" style="padding:9px 0;border-radius:10px;border:1px solid var(--byellow);background:transparent;color:var(--yellow);font-weight:700;font-size:12px;cursor:pointer;">₹'+v+'</button>';}).join('')
       </div>
       <button class="btn btn-yellow btn-full" style="padding:13px;" onclick="addMoneyNext()">Continue →</button>
       <button class="btn btn-outline btn-full" style="margin-top:8px;" onclick="closeModal()">Cancel</button>`;
@@ -1218,13 +1222,9 @@ function viewTournament(id){
   openModal(`<div class="modal-bar"></div>
     <h3 style="color:var(--yellow);">${esc(t.name||'Tournament')}</h3>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
-      ${[['Mode',t.gameMode],['Map',t.map],['Entry',el],['Prize',pl],['Slots',(t.filledSlots||0)+'/'+(t.maxSlots||0)],['Time',t.matchTime?new Date(t.matchTime).toLocaleString():'-']].map(([k,v])=>`
-        <div style="background:var(--card);border-radius:10px;padding:10px;">
-          <div style="font-size:10px;color:var(--dim)">${k}</div>
-          <div style="font-weight:700;color:var(--yellow);font-size:13px;">${esc(String(v||'-'))}</div>
-        </div>`).join('')}
+      [['Mode',t.gameMode],['Map',t.map],['Entry',el],['Prize',pl],['Slots',(t.filledSlots||0)+'/'+(t.maxSlots||0)],['Time',t.matchTime?new Date(t.matchTime).toLocaleString():'-']].map(function(kv){return '<div style="background:var(--card);border-radius:10px;padding:10px;"><div style="font-size:10px;color:var(--dim)">'+kv[0]+'</div><div style="font-weight:700;color:var(--yellow);font-size:13px;">'+esc(String(kv[1]||'-'))+'</div></div>';}).join('')
     </div>
-    ${t.description?`<p style="font-size:12px;color:var(--dim);margin-bottom:14px;">${esc(t.description)}</p>`:''}
+    (t.description?'<p style="font-size:12px;color:var(--dim);margin-bottom:14px;">'+esc(t.description)+'</p>':'')
     <button class="btn btn-yellow btn-full${canJoin?'':' btn-disabled'}" style="padding:13px;" onclick="joinTournament('${id}')">
       ${isFull?'TOURNAMENT FULL':t.status!=='upcoming'?t.status.toUpperCase():'JOIN TOURNAMENT'}
     </button>
