@@ -304,7 +304,7 @@ textarea.form-input{resize:none;min-height:80px}
       </div>
       <div class="header-right">
         <div class="h-icon" onclick="toggleSearch()" style="color:var(--yellow)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
-        <div class="chip coin-chip" onclick="go('wallet')"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6" fill="#000" opacity="0.25"/></svg> <span id="hCoins">0</span></div>
+        <div class="chip coin-chip" onclick="go('wallet')">🪙 <span id="hCoins">0</span></div>
         <div class="chip money-chip" onclick="go('wallet')"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M21 18v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v1h-9a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h9zm-9-2h10V8H12v8zm4-2.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/></svg> ₹<span id="hMoney">0</span></div>
 
       </div>
@@ -342,11 +342,14 @@ textarea.form-input{resize:none;min-height:80px}
         <div class="tab active" onclick="switchSpecialTab('weekly',this)">Weekly</div>
         <div class="tab" onclick="switchSpecialTab('monthly',this)">Monthly</div>
       </div>
-      <div class="countdown" id="specialCountdown">
-        <div class="cd-box"><div class="cd-num" id="cdD">00</div><div class="cd-label">Days</div></div>
-        <div class="cd-box"><div class="cd-num" id="cdH">00</div><div class="cd-label">Hours</div></div>
-        <div class="cd-box"><div class="cd-num" id="cdM">00</div><div class="cd-label">Mins</div></div>
-        <div class="cd-box"><div class="cd-num" id="cdS">00</div><div class="cd-label">Secs</div></div>
+      <div id="specialCountdownWrap">
+        <div style="font-size:10px;color:var(--dim);text-align:center;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;" id="cdLabel">Next Match Starts In</div>
+        <div class="countdown" id="specialCountdown">
+          <div class="cd-box"><div class="cd-num" id="cdD">00</div><div class="cd-label">Days</div></div>
+          <div class="cd-box"><div class="cd-num" id="cdH">00</div><div class="cd-label">Hours</div></div>
+          <div class="cd-box"><div class="cd-num" id="cdM">00</div><div class="cd-label">Mins</div></div>
+          <div class="cd-box"><div class="cd-num" id="cdS">00</div><div class="cd-label">Secs</div></div>
+        </div>
       </div>
       <div id="specialList"><div class="empty-state"><div class="emoji">★</div><div class="msg">No special tournaments yet</div></div></div>
     </div>
@@ -380,13 +383,13 @@ textarea.form-input{resize:none;min-height:80px}
       </div>
       <div class="wallet-card" style="border:1px solid var(--byellow)">
         <div class="wallet-label">Coin Balance</div>
-        <div class="wallet-amount yellow" style="display:flex;align-items:center;gap:6px;"><svg width="22" height="22" viewBox="0 0 24 24" fill="var(--yellow)"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6" fill="#000" opacity="0.2"/><text x="12" y="16" text-anchor="middle" font-size="9" font-weight="900" fill="#000">C</text></svg><span id="wCoins">0</span></div>
-        <button class="daily-btn available" id="dailyBtn" onclick="dailyClaim()" style="display:flex;align-items:center;justify-content:center;gap:7px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> Daily Claim (+10 Coins)</button>
+        <div class="wallet-amount yellow" style="display:flex;align-items:center;gap:6px;"><span style="font-size:26px;">🪙</span><span id="wCoins">0</span></div>
+        <button class="daily-btn available" id="dailyBtn" onclick="dailyClaim()" style="display:flex;align-items:center;justify-content:center;gap:7px;">🪙 Daily Claim (+10 Coins)</button>
       </div>
       <div class="section-title"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="flex-shrink:0"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><polyline points="3 6 4 7 6 5"/><polyline points="3 12 4 13 6 11"/><polyline points="3 18 4 19 6 17"/></svg> Transaction History</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
         <div id="txTabMoney" onclick="switchTxTab('money')" style="display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;border-radius:12px;cursor:pointer;font-size:13px;font-weight:700;background:var(--yellow);color:#000;border:2px solid var(--yellow);transition:all .1s ease;touch-action:manipulation;">₹ Money</div>
-        <div id="txTabCoins" onclick="switchTxTab('coins')" style="display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;border-radius:12px;cursor:pointer;font-size:13px;font-weight:700;background:transparent;color:var(--dim);border:2px solid #333;transition:all .1s ease;touch-action:manipulation;">◎ Coins</div>
+        <div id="txTabCoins" onclick="switchTxTab('coins')" style="display:flex;align-items:center;justify-content:center;gap:6px;padding:12px;border-radius:12px;cursor:pointer;font-size:13px;font-weight:700;background:transparent;color:var(--dim);border:2px solid #333;transition:all .1s ease;touch-action:manipulation;">🪙 Coins</div>
       </div>
       <div id="moneyHistory"><div class="empty-state"><div class="msg">No transactions</div></div></div>
       <div id="coinHistory" style="display:none;"><div class="empty-state"><div class="msg">No transactions</div></div></div>
@@ -780,7 +783,7 @@ function filterTournaments(){
 // ====== HEADER ======
 function updateHeader(){
   if(!UD)return;
-  document.getElementById('hCoins').textContent=UD.coins||0;
+  document.getElementById('hCoins').textContent=(UD.coins||0).toLocaleString();
   const rm=UD.realMoney||{};
   document.getElementById('hMoney').textContent=(rm.deposited||0)+(rm.winnings||0)+(rm.bonus||0);
 
@@ -836,8 +839,8 @@ function tournamentCard(t,special=false){
   const diff=t.matchTime?t.matchTime-Date.now():0;
   const timeStr=diff>0?formatCountdown(diff):'';
   const isPaid=t.entryType==='paid';
-  const entryLabel=isPaid?'₹'+(t.entryFee||0):(t.entryFee||0)+' ◎';
-  const prizeLabel=isPaid?'₹'+(t.prizePool||0):(t.prizePool||0)+' ◎';
+  const entryLabel=isPaid?'₹'+(t.entryFee||0):'🪙'+(t.entryFee||0);
+  const prizeLabel=isPaid?'₹'+(t.prizePool||0):'🪙'+(t.prizePool||0);
   const statusBadge=t.status==='live'?'<span class="badge badge-live"><span class="live-dot"></span>LIVE</span>':t.status==='completed'?'<span class="badge badge-completed">✓ DONE</span>':'<span class="badge badge-upcoming">⏰ UPCOMING</span>';
   const canJoin=UD&&UD.approved&&!UD.profileUpdatePending&&t.status==='upcoming'&&!isFull;
   const modeIcon=t.gameMode==='duo'?'👥':t.gameMode==='squad'?'⚔️':'🎯';
@@ -910,7 +913,9 @@ function switchSpecialTab(tab,el){
 }
 function startSpecialCountdown(targetTime){
   if(countdownInterval)clearInterval(countdownInterval);
-  if(!targetTime){['cdD','cdH','cdM','cdS'].forEach(id=>document.getElementById(id).textContent='00');return;}
+  const wrap=document.getElementById('specialCountdownWrap');
+  if(!targetTime){if(wrap)wrap.style.display='none';return;}
+  if(wrap)wrap.style.display='block';
   function tick(){
     const diff=targetTime-Date.now();
     if(diff<=0){['cdD','cdH','cdM','cdS'].forEach(id=>document.getElementById(id).textContent='00');clearInterval(countdownInterval);return;}
@@ -1074,7 +1079,7 @@ function loadTxHistory(){
     const arr=snap.val()?Object.values(snap.val()).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)):[];
     document.getElementById('coinHistory').innerHTML=arr.length?arr.map(c=>`
       <div class="tx-item">
-        <div class="tx-amount" style="color:var(--yellow)">+${c.amount||0} ◎</div>
+        <div class="tx-amount" style="color:var(--yellow)">+${c.amount||0} 🪙</div>
         <div style="font-size:10px;color:var(--dim)">${c.type||'coins'}</div>
         <div style="font-size:10px;color:var(--dim2)">${fmtDate(c.createdAt)}</div>
       </div>`).join(''):'<div class="empty-state"><div class="msg">No coin history</div></div>';
@@ -1107,7 +1112,7 @@ function renderAddMoneyModal(){
       <p style="font-size:12px;color:var(--yellow);margin-bottom:12px;">Amount (₹) — Min ₹${minAmt} · Max ₹${maxAmt}</p>
       <input class="form-input" type="number" id="addAmountInput" min="${minAmt}" max="${maxAmt}" placeholder="Enter amount" value="${addMoneyAmount||''}" style="margin-bottom:12px;">
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:14px;">
-        [50,100,200,500].map(function(v){return '<button onclick="document.getElementById(\'addAmountInput\').value='+v+'" style="padding:9px 0;border-radius:10px;border:1px solid var(--byellow);background:transparent;color:var(--yellow);font-weight:700;font-size:12px;cursor:pointer;">₹'+v+'</button>';}).join('')
+        ${[50,100,200,500].map(v=>'<button onclick="setAddAmt('+v+')" style="padding:9px 0;border-radius:10px;border:1px solid var(--byellow);background:transparent;color:var(--yellow);font-weight:700;font-size:12px;cursor:pointer;touch-action:manipulation;">₹'+v+'</button>').join('')}
       </div>
       <button class="btn btn-yellow btn-full" style="padding:13px;" onclick="addMoneyNext()">Continue →</button>
       <button class="btn btn-outline btn-full" style="margin-top:8px;" onclick="closeModal()">Cancel</button>`;
@@ -1161,6 +1166,7 @@ function previewSS(e){
   };
   reader.readAsDataURL(file);
 }
+function setAddAmt(v){const inp=document.getElementById('addAmountInput');if(inp)inp.value=v;addMoneyAmount=v;}
 function addMoneyNext(){
   const minAmt=paymentSettings.minDeposit||10;
   const maxAmt=paymentSettings.maxDeposit||50000;
@@ -1221,16 +1227,16 @@ async function submitWithdraw(maxAmt,minAmt,max2){
 // ====== JOIN TOURNAMENT ======
 function viewTournament(id){
   const t=allTournaments[id];if(!t)return;
-  const el=t.entryType==='paid'?'₹'+(t.entryFee||0):(t.entryFee||0)+' ◎';
-  const pl=t.entryType==='paid'?'₹'+(t.prizePool||0):(t.prizePool||0)+' ◎';
+  const el=t.entryType==='paid'?'₹'+(t.entryFee||0):'🪙'+(t.entryFee||0);
+  const pl=t.entryType==='paid'?'₹'+(t.prizePool||0):'🪙'+(t.prizePool||0);
   const isFull=(t.filledSlots||0)>=(t.maxSlots||0);
   const canJoin=UD&&UD.approved&&!UD.profileUpdatePending&&t.status==='upcoming'&&!isFull;
   openModal(`<div class="modal-bar"></div>
     <h3 style="color:var(--yellow);">${esc(t.name||'Tournament')}</h3>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
-      [['Mode',t.gameMode],['Map',t.map],['Entry',el],['Prize',pl],['Slots',(t.filledSlots||0)+'/'+(t.maxSlots||0)],['Time',t.matchTime?new Date(t.matchTime).toLocaleString():'-']].map(function(kv){return '<div style="background:var(--card);border-radius:10px;padding:10px;"><div style="font-size:10px;color:var(--dim)">'+kv[0]+'</div><div style="font-weight:700;color:var(--yellow);font-size:13px;">'+esc(String(kv[1]||'-'))+'</div></div>';}).join('')
+      ${[['Mode',t.gameMode],['Map',t.map],['Entry',el],['Prize',pl],['Slots',(t.filledSlots||0)+'/'+(t.maxSlots||0)],['Time',t.matchTime?new Date(t.matchTime).toLocaleString():'-']].map(kv=>'<div style="background:var(--card);border-radius:10px;padding:10px;"><div style="font-size:10px;color:var(--dim)">'+kv[0]+'</div><div style="font-weight:700;color:var(--yellow);font-size:13px;">'+esc(String(kv[1]||'-'))+'</div></div>').join('')}
     </div>
-    (t.description?'<p style="font-size:12px;color:var(--dim);margin-bottom:14px;">'+esc(t.description)+'</p>':'')
+    ${t.description?'<p style="font-size:12px;color:var(--dim);margin-bottom:14px;">'+esc(t.description)+'</p>':''}
     <button class="btn btn-yellow btn-full${canJoin?'':' btn-disabled'}" style="padding:13px;" onclick="joinTournament('${id}')">
       ${isFull?'TOURNAMENT FULL':t.status!=='upcoming'?t.status.toUpperCase():'JOIN TOURNAMENT'}
     </button>
